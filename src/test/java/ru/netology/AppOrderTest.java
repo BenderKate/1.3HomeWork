@@ -18,6 +18,7 @@ public class AppOrderTest {
     static void setupClass() {
         WebDriverManager.chromedriver().setup();
     }
+
     @BeforeEach
     void setupTest() {
         driver = new ChromeDriver();
@@ -30,13 +31,14 @@ public class AppOrderTest {
 
     @AfterEach
     void tearDown() {
-        driver.quit();
-        driver =null;
+        if (driver != null) {
+            driver.quit();
+        }
     }
 
 
     @Test
     public void shouldOpenWeb() {
-        driver.get("http://0.0.0.0:7777");
+        driver.get("http://localhost:7777");
     }
 }

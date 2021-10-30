@@ -15,4 +15,6 @@ install:
 
 
 build_script:
-  - ./gradlew test -Dselenide.headless=true
+
+- ./gradlew test --info
+

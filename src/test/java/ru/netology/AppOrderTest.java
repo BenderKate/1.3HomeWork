@@ -2,17 +2,15 @@ package ru.netology;
 
 import com.codeborne.selenide.Selenide;
 import io.github.bonigarcia.wdm.WebDriverManager;
-import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.*;
+import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
+import org.openqa.selenium.WebElement;
 import org.openqa.selenium.chrome.ChromeDriver;
 import org.openqa.selenium.chrome.ChromeOptions;
 
 public class AppOrderTest {
     private WebDriver driver;
-
 
     @BeforeAll
     static void setupClass() {
@@ -21,7 +19,6 @@ public class AppOrderTest {
 
     @BeforeEach
     void setupTest() {
-        driver = new ChromeDriver();
         ChromeOptions options = new ChromeOptions();
         options.addArguments("--disable-dev-shm-usage");
         options.addArguments("--no-sandbox");
@@ -38,7 +35,73 @@ public class AppOrderTest {
 
 
     @Test
-    public void shouldOpenWeb() {
+    public void shouldCheckFormPositiveTest() {
         driver.get("http://localhost:7777");
+        driver.findElement(By.cssSelector("[type='text']")).sendKeys("Иван Иванов");
+        driver.findElement(By.cssSelector("[type='tel']")).sendKeys("+71234567890");
+        driver.findElement(By.cssSelector("[class='checkbox__box']")).click();
+        driver.findElement(By.tagName("button")).click();
+        String resultMessage = driver.findElement(By.cssSelector(".paragraph")).getText();
+        String expectedMessage = "  Ваша заявка успешно отправлена! Наш менеджер свяжется с вами в ближайшее время.";
+        Assertions.assertEquals(expectedMessage, resultMessage, "Фактическое сообщение не соответствует ожидаемому!");
     }
+
+    @Test
+    public void shouldCheckFormWithWrongName() {
+        driver.get("http://localhost:7777");
+        driver.findElement(By.cssSelector("[type='text']")).sendKeys("Ivan");
+        driver.findElement(By.cssSelector("[type='tel']")).sendKeys("+71234567890");
+        driver.findElement(By.cssSelector("[class='checkbox__box']")).click();
+        driver.findElement(By.tagName("button")).click();
+        String resultMessage = driver.findElement(By.cssSelector("[data-test-id=name].input_invalid .input__sub")).getText();
+        String expectedMessage = "Имя и Фамилия указаные неверно. Допустимы только русские буквы, пробелы и дефисы.";
+        Assertions.assertEquals(expectedMessage, resultMessage, "Фактическое сообщение не соответствует ожидаемому!");
+    }
+
+    @Test
+    public void shouldCheckFormWithWrongTelephoneNumber() {
+        driver.get("http://localhost:7777");
+        driver.findElement(By.cssSelector("[type='text']")).sendKeys("Иван Иванов");
+        driver.findElement(By.cssSelector("[type='tel']")).sendKeys("+712");
+        driver.findElement(By.cssSelector("[class='checkbox__box']")).click();
+        driver.findElement(By.tagName("button")).click();
+        String resultMessage = driver.findElement(By.cssSelector("[data-test-id=phone].input_invalid .input__sub")).getText();
+        String expectedMessage = "Телефон указан неверно. Должно быть 11 цифр, например, +79012345678.";
+        Assertions.assertEquals(expectedMessage, resultMessage, "Фактическое сообщение не соответствует ожидаемому!");
+    }
+
+    @Test
+    public void shouldCheckFormWithoutCheckBox() {
+        driver.get("http://localhost:7777");
+        driver.findElement(By.cssSelector("[type='text']")).sendKeys("Иван Иванов");
+        driver.findElement(By.cssSelector("[type='tel']")).sendKeys("+79111171617");
+        driver.findElement(By.tagName("button")).click();
+        String resultMessage = driver.findElement(By.cssSelector("[class='checkbox__text']")).getText();
+        String expectedMessage = "Я соглашаюсь с условиями обработки и использования моих персональных данных и разрешаю сделать запрос в бюро кредитных историй";
+        Assertions.assertEquals(expectedMessage, resultMessage, "Фактическое сообщение не соответствует ожидаемому!");
+    }
+
+    @Test
+    public void shouldCheckFormWithoutTelephoneNumber() {
+        driver.get("http://localhost:7777");
+        driver.findElement(By.cssSelector("[type='text']")).sendKeys("Иван Иванов");
+        driver.findElement(By.cssSelector("[class='checkbox__box']")).click();
+        driver.findElement(By.tagName("button")).click();
+        String resultMessage = driver.findElement(By.cssSelector("[data-test-id=phone].input_invalid .input__sub")).getText();
+        String expectedMessage = "Поле обязательно для заполнения";
+        Assertions.assertEquals(expectedMessage, resultMessage, "Фактическое сообщение не соответствует ожидаемому!");
+    }
+
+    @Test
+    public void shouldCheckFormWithoutName() {
+        driver.get("http://localhost:7777");
+        driver.findElement(By.cssSelector("[type='tel']")).sendKeys("+7111111111");
+        driver.findElement(By.cssSelector("[class='checkbox__box']")).click();
+        driver.findElement(By.tagName("button")).click();
+        String resultMessage = driver.findElement(By.cssSelector("[class='input__sub'")).getText();
+        String expectedMessage = "Поле обязательно для заполнения";
+        Assertions.assertEquals(expectedMessage, resultMessage, "Фактическое сообщение не соответствует ожидаемому!");
+    }
+
+
 }
